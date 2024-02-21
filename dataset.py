@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 import torch
 from torch.utils.data import Dataset, DataLoader
+
+
+import torchvision
 import torchvision.transforms as transforms
 import numpy as np
 from PIL import Image
 import os
 
 
+
 import torch.utils.data as data
 import torchvision.datasets as datasets
 
 ##credit to the https://github.com/feidfoe/learning-not-to-learn/blob/master/data_loader.py
+
+
+
+
 
 class WholeDataLoader(Dataset):
     def __init__(self,option):
@@ -42,15 +50,20 @@ class WholeDataLoader(Dataset):
         label = self.label[index]
         image = self.image[index]
 
-        label_image = torch.from_numpy(np.transpose(image,(2,0,1)))
+        image = self.ToPIL(image)
 
+        label_image = image.resize((14,14), Image.NEAREST) 
+
+        label_image = torch.from_numpy(np.transpose(label_image,(2,0,1)).copy())
         mask_image = torch.lt(label_image.float()-0.00001, 0.) * 255
         label_image = torch.div(label_image,32)
         label_image = label_image + mask_image
         label_image = label_image.long()
+
+
         
-        
-        return self.T(image), label_image, torch.from_numpy(np.asarray(label)).type(torch.LongTensor)
+        return self.T(image), label_image,  torch.from_numpy(np.asarray(label)).type(torch.LongTensor)
+    
 
         
 
